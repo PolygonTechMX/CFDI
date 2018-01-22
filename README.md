@@ -17,6 +17,7 @@
 [npm-downloads-image]: http://img.shields.io/npm/dm/cfdi..svg?style=flat
 
 Libreria para crear y sellar documendos xml cfdi version 3.3.
+
 Por el momento solo funciona para windows y no requiere instalacion de OpenSSL ni Libxml2 ya que vienen integrados en el paquete.
 
 ## Instalación
@@ -122,8 +123,10 @@ cfdi.impuestos({
 
 XML
 ```javascript
-const xml = cfdi.xml();
-console.log(xml);
+cfdi
+.xml()
+.then(xml => console.log(xml))
+.catch(err => console.log(err));
 ```
 
 XML Sellado
