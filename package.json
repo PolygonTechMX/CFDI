@@ -1,21 +1,9 @@
 {
   "name": "cfdi",
   "version": "3.3.9",
-  "dependencies": {
-    "crypto": "^1.0.1",
-    "node-forge": "^0.7.1",
-    "node-xsltproc": "^1.1.1",
-    "xml-js": "^1.6.2"
-  },
-  "deprecated": false,
+  "license": "MIT",
+  "main": "./src/CFDI.js",
   "description": "Libreria para crear y sellar xml cfdi V3.3",
-  "contributors": [
-    "David Mart <david.mtlopez@gmail.com> (https://github.com/daviidmart)"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/PolygonTechMX/CFDI"
-  },
   "keywords": [
     "cfdi",
     "sat",
@@ -24,6 +12,17 @@
     "mexico",
     "pdf"
   ],
-  "license": "MIT",
-  "main": "./lib/CFDI.js"
+  "contributors": [
+    "David Mart <david.mtlopez@gmail.com> (https://github.com/daviidmart)"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PolygonTechMX/CFDI"
+  },
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "node-forge": "^0.7.1",
+    "node-xsltproc": "^1.1.1",
+    "xml-js": "^1.6.2"
+  }
 }

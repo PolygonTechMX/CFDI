@@ -11,6 +11,16 @@ const pki = forge.pki;
 const baseCFDI = require('./utils/base');
 const FileSystem = require('./utils/FileSystem');
 
+let opensslPath;
+let libxmlPath;
+
+if(/^win/.test(process.platform)){
+  libxmlPath = path.join(path.resolve(__dirname, '../'), 'lib', 'win','libxml', 'bin');
+  opensslPath = path.join(path.resolve(__dirname, '../'), 'lib', 'win', 'openssl', 'bin');
+}else if(/^linux/.test(process.platform)){
+  
+}
+
 function agregarEmisor(cfdi, c) {
   cfdi.elements[0].elements.push({
     type: 'element',
@@ -285,12 +295,12 @@ class CFDI {
     const fullPath = `./tmp/${FileSystem.generateNameTemp()}.xml`;
     fs.writeFileSync(fullPath, convert.json2xml(base), 'utf8');
     const stylesheet = path.join(__dirname, 'resources', 'cadenaoriginal_3_3.xslt');
-    return xsltproc({ xsltproc_path: path.join(__dirname, 'libxml', 'bin') })
+    return xsltproc({ xsltproc_path: libxmlPath })
     .transform([stylesheet, fullPath])
     .then(cadena => {
       FileSystem.manageDirectoryTemp('delete');
       const pem = openssl.decryptPKCS8PrivateKey({
-        openssl_path: path.join(__dirname, 'openssl', 'bin'),
+        openssl_path: opensslPath,
         in: key,
         pass: pas
       });
