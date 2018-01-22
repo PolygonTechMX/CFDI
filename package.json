@@ -1,6 +1,6 @@
 {
   "name": "cfdi",
-  "version": "3.3.7",
+  "version": "3.3.8",
   "dependencies": {
     "crypto": "^1.0.1",
     "jxon": "^2.0.0-beta.5",
@@ -13,6 +13,13 @@
   "description": "Libreria para crear xml de cfdi",
   "directories": {
     "test": "tests"
+  },
+  "contributors": [
+    "David Mart <david.mtlopez@gmail.com> (https://github.com/daviidmart)"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PolygonTechMX/CFDI"
   },
   "license": "MIT",
   "main": "./lib/CFDI.js"
