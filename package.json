@@ -1,6 +1,6 @@
 {
   "name": "cfdi",
-  "version": "3.3.8",
+  "version": "3.3.9",
   "dependencies": {
     "crypto": "^1.0.1",
     "node-forge": "^0.7.1",
