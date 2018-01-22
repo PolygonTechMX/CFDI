@@ -7,7 +7,7 @@
     "node-forge": "^0.7.1",
     "node-xsltproc": "^1.1.1",
     "xml-js": "^1.6.2",
-    "xsltproc": "^0.0.3"
+    "xsltproc": "^0.0.4"
   },
   "deprecated": false,
   "description": "Libreria para crear xml de cfdi",
