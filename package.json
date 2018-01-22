@@ -1,0 +1,19 @@
+{
+  "name": "cfdi",
+  "version": "3.3.7",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "jxon": "^2.0.0-beta.5",
+    "node-forge": "^0.7.1",
+    "node-xsltproc": "^1.1.1",
+    "xml-js": "^1.6.2",
+    "xsltproc": "^0.0.3"
+  },
+  "deprecated": false,
+  "description": "Libreria para crear xml de cfdi",
+  "directories": {
+    "test": "tests"
+  },
+  "license": "MIT",
+  "main": "./lib/CFDI.js"
+}
