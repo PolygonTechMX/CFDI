@@ -19,8 +19,12 @@
     "type": "git",
     "url": "https://github.com/PolygonTechMX/CFDI"
   },
+  "system": {
+    "os": ["!win32"]
+  },
   "dependencies": {
     "crypto": "^1.0.1",
+    "lodash": "^4.17.4",
     "node-forge": "^0.7.1",
     "node-xsltproc": "^1.1.1",
     "xml-js": "^1.6.2"

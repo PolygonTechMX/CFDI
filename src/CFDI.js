@@ -1,8 +1,10 @@
 'use strict';
+
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const convert = require('xml-js');
+const _ = require('lodash');
 const xsltproc = require('node-xsltproc');
 const forge = require('node-forge');
 const openssl = require('./utils/openssl');
@@ -11,33 +13,15 @@ const pki = forge.pki;
 const baseCFDI = require('./utils/base');
 const FileSystem = require('./utils/FileSystem');
 
-let opensslPath;
-let libxmlPath;
+let opensslPath = '';
+let libxmlPath = '';
 
 if(/^win/.test(process.platform)){
   libxmlPath = path.join(path.resolve(__dirname, '../'), 'lib', 'win','libxml', 'bin');
   opensslPath = path.join(path.resolve(__dirname, '../'), 'lib', 'win', 'openssl', 'bin');
-}else if(/^linux/.test(process.platform)){
-  
 }
 
-function agregarEmisor(cfdi, c) {
-  cfdi.elements[0].elements.push({
-    type: 'element',
-    name: 'cfdi:Emisor',
-    attributes: c.cfdi.Emisor
-  });
-}
-
-function agregarReceptor(cfdi, c) {
-  cfdi.elements[0].elements.push({
-    type: 'element',
-    name: 'cfdi:Receptor',
-    attributes: c.cfdi.Receptor
-  });
-}
-
-function agregarConcepto(cfdi, c) {
+function pushConcepto(cfdi, c) {
   // AGREGAR BASE DE CONCEPTOS
   if(cfdi.elements[0].elements.length === 2){
     cfdi.elements[0].elements.push({
@@ -58,106 +42,125 @@ function agregarConcepto(cfdi, c) {
     elements: []
   };
 
-  // AGREGAR IMPUESTOS A CONCEPTO
-  concepto.elements.push({
-    type: 'element',
-    name: 'cfdi:Impuestos',
-    elements: []
-  });
-
-  // AGREGAR TRASLADOS A IMPUESTOS
-  concepto.elements[0].elements.push({
-    type: 'element',
-    name: 'cfdi:Traslados',
-    elements: []
-  });
-
-  // RECORRER TRASLADOS
-  c.Impuestos.Traslados.forEach(traslado => {
-    // AGREGAR TRASLADO A TRASLADOS
-    concepto.elements[0].elements[0].elements.push({
+  if(c.Impuestos.Traslados.length > 0 || c.Impuestos.Retenciones.length > 0){
+    const index = 0;
+    // AGREGAR IMPUESTOS A CONCEPTO
+    concepto.elements.push({
       type: 'element',
-      name: 'cfdi:Traslado',
-      attributes: traslado
+      name: 'cfdi:Impuestos',
+      elements: []
     });
-  });
+
+    if(c.Impuestos.Traslados.length > 0){
+      // AGREGAR TRASLADOS A IMPUESTOS
+      concepto.elements[0].elements.push({
+        type: 'element',
+        name: 'cfdi:Traslados',
+        elements: []
+      });
+
+      // RECORRER TRASLADOS
+      c.Impuestos.Traslados.forEach(traslado => {
+        // AGREGAR TRASLADO A TRASLADOS
+        concepto.elements[0].elements[index].elements.push({
+          type: 'element',
+          name: 'cfdi:Traslado',
+          attributes: traslado
+        });
+      });
+
+      index++;
+    }
+
+    if(c.Impuestos.Retenciones.length > 0){
+      // AGREGAR RETENCIONES A IMPUESTOS
+      concepto.elements[0].elements.push({
+        type: 'element',
+        name: 'cfdi:Retenciones',
+        elements: []
+      });
+
+      // RECORRER TRASLADOS
+      c.Impuestos.Retenciones.forEach(retencion => {
+        // AGREGAR RETENCION A RETENCIONES
+        concepto.elements[0].elements[index].elements.push({
+          type: 'element',
+          name: 'cfdi:Retencion',
+          attributes: retencion
+        });
+      });
+    }
+  }
 
   base.push(concepto);
 }
 
-function agregarImpuestosGlobal(cfdi, i) {
-  // CREANDO BASE DE IMPUESTOS GLOBALES
-  const impuestos = {
-    type: 'element',
-    name: 'cfdi:Impuestos',
-    attributes: { TotalImpuestosTrasladados: i.TotalImpuestosTrasladados },
-    elements: []
-  };
-
-  // AGREGAR TRASLADOS A IMPUESTOS
-  impuestos.elements.push({
-    type: 'element',
-    name: 'cfdi:Traslados',
-    elements: []
-  });
-
-  // RECORRER TRASLADOS
-  i.Traslados.forEach(traslado => {
-    // AGREGAR TRASLADO A TRASLADOS
-    impuestos.elements[0].elements.push({
-      type: 'element',
-      name: 'cfdi:Traslado',
-      attributes: traslado
-    });
-  });
-
-  // AGREGAR IMPUESTOS A COMPROBANTE
-  cfdi.elements[0].elements.push(impuestos);
-}
-
-function certificarCFDI(cfdi, c) {
-  // READ .CERT FILE
-  const cer = fs.readFileSync(c.cer, 'base64');
-  // CONVERTIR A PEM
-  const pem = '-----BEGIN CERTIFICATE-----\n' + cer + '\n-----END CERTIFICATE-----';
-  // EXTRAER SERIAL Y CONVERTIR DE HEXADECIMAL A STRING
-  const serialNumber = pki
-    .certificateFromPem(pem)
-    .serialNumber.match(/.{1,2}/g)
-    .map(function(v) {
-      return String.fromCharCode(parseInt(v, 16));
-    })
-    .join('');
-
-  cfdi.elements[0].attributes = c.cfdi.Comprobante;
-  cfdi.elements[0].attributes['xmlns:xsi'] = 'http://www.w3.org/2001/XMLSchema-instance';
-  cfdi.elements[0].attributes['xsi:schemaLocation'] = 'http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd';
-  cfdi.elements[0].attributes['xmlns:cfdi'] = 'http://www.sat.gob.mx/cfd/3';
-  cfdi.elements[0].attributes['Version'] = '3.3';
-  cfdi.elements[0].attributes['NoCertificado'] = serialNumber;
-  cfdi.elements[0].attributes['Certificado'] = cer;
-}
-
-/**
- * Crear nuevo CFDI
- * @class
- */
-class CFDI {
-  constructor() {
-    this.datos = {
-      cer: '',
-      key: '',
-      pas: '',
-      cfdi: {
-        Comprobante: {},
-        Emisor: {},
-        Receptor: {},
-        Conceptos: [],
-        Impuestos: {}
-      }
+class concept {
+  /**
+  * @param {Object} concepto
+  * @param {String} concepto.ClaveProdServ
+  * @param {String} concepto.ClaveUnidad
+  * @param {String} concepto.NoIdentificacion
+  * @param {String} concepto.Cantidad
+  * @param {String} concepto.Unidad
+  * @param {String} concepto.Descripcion
+  * @param {String} concepto.ValorUnitario
+  * @param {String} concepto.Importe
+  * @param {String} concepto.Descuento
+  * @param {Object} concepto.Impuestos
+  * @param {Object[]} concepto.Impuestos.Traslados
+  * @param {Object[]} concepto.Impuestos.Retenciones
+  * @param {String} concepto.Impuestos.Traslados.Base
+  * @param {String} concepto.Impuestos.Traslados.Impuesto
+  * @param {String} concepto.Impuestos.Traslados.TipoFactor
+  * @param {String} concepto.Impuestos.Traslados.TasaOCuota
+  * @param {String} concepto.Impuestos.Traslados.Importe
+  * @param {String} concepto.Impuestos.Retenciones.Base
+  * @param {String} concepto.Impuestos.Retenciones.Impuesto
+  * @param {String} concepto.Impuestos.Retenciones.TipoFactor
+  * @param {String} concepto.Impuestos.Retenciones.TasaOCuota
+  * @param {String} concepto.Impuestos.Retenciones.Importe
+  */
+  constructor(concepto){  
+    this.concepto = concepto;
+    this.concepto.Impuestos = {
+      Traslados: [],
+      Retenciones: []
     }
   }
 
+  /**
+  * @param {Object} traslado
+  * @param {String} traslado.Base
+  * @param {String} traslado.Impuesto
+  * @param {String} traslado.TipoFactor
+  * @param {String} traslado.TasaOCuota
+  * @param {String} traslado.Importe
+  */
+  traslado(traslado){
+    this.concepto.Impuestos.Traslados.push(traslado);
+    return this;
+  }
+
+  /**
+  * @param {Object} retencion
+  * @param {String} retencion.Base
+  * @param {String} retencion.Impuesto
+  * @param {String} retencion.TipoFactor
+  * @param {String} retencion.TasaOCuota
+  * @param {String} retencion.Importe
+  */
+  retencion(retencion){
+    this.concepto.Impuestos.Retenciones.push(retencion);
+    return this;
+  }
+
+  agregar(cfdi){
+    pushConcepto(cfdi.jxml, this.concepto);
+  }
+}
+
+class CFDI {
   /**
   * @param {Object} comprobante
   * @param {String} comprobante.Serie
@@ -173,10 +176,24 @@ class CFDI {
   * @param {String} comprobante.Descuento
   * @param {String} comprobante.TipoCambio
   * @param {String} comprobante.LugarExpedicion
+  * @param {String} comprobante.Confirmacion
   */
-  comprobante(comprobante){
-    this.datos.cfdi.Comprobante = comprobante;
-    return this;
+  constructor(comprobante) {
+    this.jxml = new baseCFDI();
+    this.jxml.elements[0].attributes = comprobante;
+    this.jxml.elements[0].attributes['xmlns:xsi'] = 'http://www.w3.org/2001/XMLSchema-instance';
+    this.jxml.elements[0].attributes['xsi:schemaLocation'] = 'http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd';
+    this.jxml.elements[0].attributes['xmlns:cfdi'] = 'http://www.sat.gob.mx/cfd/3';
+    this.jxml.elements[0].attributes['Version'] = '3.3';
+  }
+
+  /**
+  * @param {Object} relacionados
+  * @param {String} relacionados.TipoRelacion
+  * @param {String[]} relacionados.CfdiRelacionados
+  */
+  CfdiRelacionados(relacionados){
+    _
   }
 
   /**
@@ -186,7 +203,11 @@ class CFDI {
   * @param {String} emisor.RegimenFiscal
   */
   emisor(emisor) {
-    this.datos.cfdi.Emisor = emisor;
+    this.jxml.elements[0].elements.push({
+      type: 'element',
+      name: 'cfdi:Emisor',
+      attributes: emisor
+    });
     return this;
   }
 
@@ -197,7 +218,11 @@ class CFDI {
   * @param {String} receptor.RegimenFiscal
   */
   receptor(receptor) {
-    this.datos.cfdi.Receptor = receptor;
+    this.jxml.elements[0].elements.push({
+      type: 'element',
+      name: 'cfdi:Receptor',
+      attributes: receptor
+    });
     return this;
   }
 
@@ -215,8 +240,63 @@ class CFDI {
   * @param {String} impuestos.Retenciones.TasaOCuota
   * @param {String} impuestos.Retenciones.Importe
   */
-  impuestos(impuestos) {
-    this.datos.cfdi.Impuestos = impuestos;
+  impuestos(i) {
+    // CREANDO BASE DE IMPUESTOS GLOBALES
+    const impuestos = {
+      type: 'element',
+      name: 'cfdi:Impuestos',
+      attributes: { },
+      elements: []
+    };
+
+    const index = 0;
+    // AGREGAR SI CONTIENE IMPUESTOS TRASLADADOS
+    if(_.has(i, 'TotalImpuestosTrasladados')){
+      impuestos.attributes['TotalImpuestosTrasladados'] = i.TotalImpuestosTrasladados;
+
+      // AGREGAR TRASLADOS A IMPUESTOS
+      impuestos.elements.push({
+        type: 'element',
+        name: 'cfdi:Traslados',
+        elements: []
+      });
+
+      // RECORRER TRASLADOS
+      i.Traslados.forEach(traslado => {
+        // AGREGAR TRASLADO A TRASLADOS
+        impuestos.elements[index].elements.push({
+          type: 'element',
+          name: 'cfdi:Traslado',
+          attributes: traslado
+        });
+      });
+      index++;
+    }
+
+    // AGREGAR SI CONTIENE IMPUESTOS RETENIDOS
+    if(_.has(i, 'TotalImpuestosRetenidos')){
+      impuestos.attributes['TotalImpuestosRetenidos'] = i.TotalImpuestosRetenidos;
+
+      // AGREGAR RETENCIONES A IMPUESTOS
+      impuestos.elements.push({
+        type: 'element',
+        name: 'cfdi:Retenciones',
+        elements: []
+      });
+
+      // RECORRER TRASLADOS
+      i.Retenciones.forEach(retencion => {
+        // AGREGAR TRASLADO A TRASLADOS
+        impuestos.elements[index].elements.push({
+          type: 'element',
+          name: 'cfdi:Retencion',
+          attributes: retencion
+        });
+      });
+    }
+
+    // AGREGAR IMPUESTOS A COMPROBANTE
+    this.jxml.elements[0].elements.push(impuestos);
     return this;
   }
 
@@ -245,8 +325,26 @@ class CFDI {
   * @param {String} concepto.Impuestos.Retenciones.TasaOCuota
   * @param {String} concepto.Impuestos.Retenciones.Importe
   */
-  agregarConcepto(concepto) {
-    this.datos.cfdi.Conceptos.push(concepto);
+  concepto(concepto) {
+    return new concept(concepto);
+  }
+
+  /**
+  * @param {String} certificado
+  */
+  certificar(certificado) {
+    const cer = fs.readFileSync(certificado, 'base64');
+    const pem = '-----BEGIN CERTIFICATE-----\n' + cer + '\n-----END CERTIFICATE-----';
+    const serialNumber = pki
+    .certificateFromPem(pem)
+    .serialNumber.match(/.{1,2}/g)
+    .map(function(v) {
+      return String.fromCharCode(parseInt(v, 16));
+    })
+    .join('');
+
+    this.jxml.elements[0].attributes['NoCertificado'] = serialNumber;
+    this.jxml.elements[0].attributes['Certificado'] = cer;
     return this;
   }
 
@@ -256,17 +354,7 @@ class CFDI {
   xml() {
     return new Promise((resolve, reject) => {
       try {
-        const base = new baseCFDI();
-        agregarEmisor(base, this.datos);
-        agregarReceptor(base, this.datos);
-        this.datos.cfdi.Conceptos.forEach(concepto => agregarConcepto(base, concepto));
-        agregarImpuestosGlobal(base, this.datos.cfdi.Impuestos);
-        base.elements[0].attributes = this.datos.cfdi.Comprobante;
-        base.elements[0].attributes['xmlns:xsi'] = 'http://www.w3.org/2001/XMLSchema-instance';
-        base.elements[0].attributes['xsi:schemaLocation'] = 'http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd';
-        base.elements[0].attributes['xmlns:cfdi'] = 'http://www.sat.gob.mx/cfd/3';
-        base.elements[0].attributes['Version'] = '3.3';
-        const xml = convert.json2xml(base);
+        const xml = convert.json2xml(this.jxml);
         resolve(xml);
       }catch(err) {
         reject(err);
@@ -275,25 +363,14 @@ class CFDI {
   }
 
   /**
-  * @param {String} cer Directorio del certificado
-  * @param {String} key Directorio de la llave
-  * @param {String} pas Contraseña de la llave
+  * @param {String} llave Directorio de la llave
+  * @param {String} password Contraseña de la llave
   * @returns {Promise}
   */
-  xmlSellado(cer, key, pas) {
-    this.datos.cer = cer;
-    this.datos.key = key;
-    this.datos.pas = pas;
-
-    const base = new baseCFDI();
-    agregarEmisor(base, this.datos);
-    agregarReceptor(base, this.datos);
-    this.datos.cfdi.Conceptos.forEach(concepto => agregarConcepto(base, concepto));
-    agregarImpuestosGlobal(base, this.datos.cfdi.Impuestos);
-    certificarCFDI(base, this.datos);
+  xmlSellado(llave, password) {
     FileSystem.manageDirectoryTemp('create');
     const fullPath = `./tmp/${FileSystem.generateNameTemp()}.xml`;
-    fs.writeFileSync(fullPath, convert.json2xml(base), 'utf8');
+    fs.writeFileSync(fullPath, convert.json2xml(this.jxml), 'utf8');
     const stylesheet = path.join(__dirname, 'resources', 'cadenaoriginal_3_3.xslt');
     return xsltproc({ xsltproc_path: libxmlPath })
     .transform([stylesheet, fullPath])
@@ -301,15 +378,15 @@ class CFDI {
       FileSystem.manageDirectoryTemp('delete');
       const pem = openssl.decryptPKCS8PrivateKey({
         openssl_path: opensslPath,
-        in: key,
-        pass: pas
+        in: llave,
+        pass: password
       });
       if(pem != false){
         const sign = crypto.createSign('RSA-SHA256');
         sign.update(cadena.result);
         const sello = sign.sign(pem.trim(), 'base64');
-        base.elements[0].attributes['Sello'] = sello;
-        const xml = convert.json2xml(base);
+        this.jxml.elements[0].attributes['Sello'] = sello;
+        const xml = convert.json2xml(this.jxml);
         return xml;
       }else{
         reject('Error al combertir certificado');

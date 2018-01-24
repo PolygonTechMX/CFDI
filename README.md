@@ -1,10 +1,11 @@
-# CFDI
+# CFDI 3.3
 
 [![MIT License][license-image]][license-url]
 [![Greenkeeper badge][green-image]][green-url]
 [![Known Vulnerabilities][snyk-image]][snyk-url]
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-url]
+[![dependencies status][dev-image]][dev-url]
 
 [green-image]: https://badges.greenkeeper.io/PolygonTechMX/CFDI.svg
 [green-url]: https://greenkeeper.io/
@@ -14,11 +15,20 @@
 [license-url]: LICENSE
 [npm-url]: https://npmjs.org/package/cfdi
 [npm-version-image]: http://img.shields.io/npm/v/cfdi.svg?style=flat
-[npm-downloads-image]: http://img.shields.io/npm/dm/cfdi..svg?style=flat
+[npm-downloads-image]: http://img.shields.io/npm/dt/cfdi..svg?style=flat
+[dev-image]: https://img.shields.io/david/mgcrea/node-openssl-wrapper.svg?style=flat
+[dev-url]: https://david-dm.org/mgcrea/node-openssl-wrapper
 
-Libreria para crear y sellar documendos xml cfdi version 3.3.
+Libreria para crear y sellar documendos xml cfdi.
 
 Por el momento solo funciona para windows y no requiere instalacion de OpenSSL ni Libxml2 ya que vienen integrados en el paquete.
+
+<!-- toc -->
+- [Instalación](#Instalación)
+- [Documentación](#Documentación)
+  * [`name`](#name)
+  * [`version`](#version)
+<!-- tocstop -->
 
 ## Instalación
 
@@ -63,6 +73,14 @@ cfdi.comprobante({
 });
 ```
 
+CfdiRelacionados
+```javascript
+cfdi.CfdiRelacionados({
+    TipoRelacion: '',
+    CfdiRelacionados: ['UUID_____________1', 'UUID_____________2', 'UUID_____________3']
+});
+```
+
 Emisor
 ```javascript
 cfdi.emisor({
@@ -83,7 +101,7 @@ cfdi.receptor({
 
 Concepto
 ```javascript
-cfdi.agregarConcepto({
+const concepto = cfdi.concepto({
     ClaveProdServ: '52121500',
     ClaveUnidad: 'E48',
     NoIdentificacion: '3031130179',
@@ -91,19 +109,35 @@ cfdi.agregarConcepto({
     Unidad: 'PZ',
     Descripcion: 'BATITA UNICORNIO',
     ValorUnitario: '369.83',
-    Importe: '369.83',
-    Impuestos: {
-        Traslados: [
-            {
-                Base: '369.83',
-                Impuesto: '002',
-                TipoFactor: 'Tasa',
-                TasaOCuota: '0.16',
-                Importe: '59.17'
-            }
-        ]
-    }
+    Importe: '369.83'
 });
+```
+
+Agregar traslado a concepto
+```javascript
+concepto.traslado({
+    Base: '369.83',
+    Impuesto: '002',
+    TipoFactor: 'Tasa',
+    TasaOCuota: '0.16',
+    Importe: '59.17'
+});
+```
+
+Agregar retencion a concepto
+```javascript
+concepto.retencion({
+    Base: '369.83',
+    Impuesto: '002',
+    TipoFactor: 'Tasa',
+    TasaOCuota: '0.16',
+    Importe: '59.17'
+});
+```
+
+Agregar concepto a cfdi
+```javascript
+concepto.agregar(cfdi),
 ```
 
 Impuestos
@@ -121,7 +155,13 @@ cfdi.impuestos({
 });
 ```
 
-XML
+Certificar
+```javascript
+const cer = path.join(__dirname, 'LAN7008173R5.cer');
+cfdi.certificar(cer);
+```
+
+Generar XML
 ```javascript
 cfdi
 .xml()
@@ -129,31 +169,23 @@ cfdi
 .catch(err => console.log(err));
 ```
 
-XML Sellado
+Generar XML Sellado
 ```javascript
 const key = path.join(__dirname, 'LAN7008173R5.key');
-const cer = path.join(__dirname, 'LAN7008173R5.cer');
-
-cfdi
-.xmlSellado(cer, key, '12345678a')
+cfdi.xmlSellado(key, '12345678a')
 .then(xml => console.log(xml))
 .catch(err => console.log(err));
 ```
 
-## Ejemplo
-
+## Ejemplo básico
 ```javascript
 const fs = require('fs');
-const path = require('path');
-const CFDI = require('cfdi');
+const CFDI = require('../src/CFDI');
 
-const key = path.join(__dirname, 'LAN7008173R5.key');
-const cer = path.join(__dirname, 'LAN7008173R5.cer');
+const key = './LAN7008173R5.key';
+const cer = './LAN7008173R5.cer';
 
-const cfdi = new CFDI();
-
-cfdi
-.comprobante({
+const cfdi = new CFDI({
     Serie: 'A',
     Folio: '167ABC',
     Fecha: '2018-01-16T09:33:43',
@@ -167,18 +199,21 @@ cfdi
     Descuento: '0.00',
     TipoCambio: '1',
     LugarExpedicion: '45079'
-})
-.emisor({
+});
+
+cfdi.emisor({
     Rfc: 'SAT',
     Nombre: 'SAT SA DE CV',
     RegimenFiscal: '601'
-})
-.receptor({
+});
+
+cfdi.receptor({
     Rfc: 'MALD930428US2',
     Nombre: 'DAVID ISAAC MARTINEZ LOPEZ',
     UsoCFDI: 'G01'
-})
-.agregarConcepto({
+});
+
+const concepto = cfdi.concepto({
     ClaveProdServ: '52121500',
     ClaveUnidad: 'E48',
     NoIdentificacion: '3031130179',
@@ -186,20 +221,20 @@ cfdi
     Unidad: 'PZ',
     Descripcion: 'BATITA UNICORNIO',
     ValorUnitario: '369.83',
-    Importe: '369.83',
-    Impuestos: {
-        Traslados: [
-            {
-                Base: '369.83',
-                Impuesto: '002',
-                TipoFactor: 'Tasa',
-                TasaOCuota: '0.16',
-                Importe: '59.17'
-            }
-        ]
-    }
-})
-.impuestos({
+    Importe: '369.83'
+});
+
+concepto.traslado({
+    Base: '369.83',
+    Impuesto: '002',
+    TipoFactor: 'Tasa',
+    TasaOCuota: '0.16',
+    Importe: '59.17'
+});
+
+concepto.agregar(cfdi);
+
+cfdi.impuestos({
     TotalImpuestosTrasladados: '59.17',
     Traslados: [
       {
@@ -209,8 +244,78 @@ cfdi
         Importe: '59.17'
       }
     ]
-})
-.xmlSellado(cer, key, '12345678a')
+});
+
+cfdi.certificar(cer);
+
+cfdi.xmlSellado(key, '12345678a')
+.then(xml => console.log(xml))
+.catch(err => console.log(err));
+```
+
+## Ejemplo simplificado
+```javascript
+const fs = require('fs');
+const CFDI = require('../src/CFDI');
+
+const key = './LAN7008173R5.key';
+const cer = './LAN7008173R5.cer';
+
+const cfdi = new CFDI({
+    Serie: 'A',
+    Folio: '167ABC',
+    Fecha: '2018-01-16T09:33:43',
+    SubTotal: '369.83',
+    Moneda: 'MXN',
+    Total: '429.00',
+    TipoDeComprobante: 'I',
+    FormaPago: '01',
+    MetodoPago: 'PUE',
+    CondicionesDePago: 'CONDICIONES',
+    Descuento: '0.00',
+    TipoCambio: '1',
+    LugarExpedicion: '45079'
+}).emisor({
+    Rfc: 'SAT',
+    Nombre: 'SAT SA DE CV',
+    RegimenFiscal: '601'
+}).receptor({
+    Rfc: 'MALD930428US2',
+    Nombre: 'DAVID ISAAC MARTINEZ LOPEZ',
+    UsoCFDI: 'G01'
+}).impuestos({
+    TotalImpuestosTrasladados: '59.17',
+    Traslados: [
+      {
+        Impuesto: '002',
+        TipoFactor: 'Tasa',
+        TasaOCuota: '0.16',
+        Importe: '59.17'
+      }
+    ]
+});
+
+cfdi.concepto({
+    ClaveProdServ: '52121500',
+    ClaveUnidad: 'E48',
+    NoIdentificacion: '3031130179',
+    Cantidad: '1',
+    Unidad: 'PZ',
+    Descripcion: 'BATITA UNICORNIO',
+    ValorUnitario: '369.83',
+    Importe: '369.83'
+}).retencion({
+    Base: '369.83',
+    Impuesto: '002',
+    TipoFactor: 'Tasa',
+    TasaOCuota: '0.16',
+    Importe: '59.17'
+}).agregar(cfdi);
+
+
+cfdi
+.certificar(cer)
+.xmlSellado(key, '12345678a')
 .then(xml => console.log(xml))
 .catch(err => console.log(err));
 ```
