@@ -28,7 +28,9 @@ Por el momento solo funciona para windows y no requiere instalacion de OpenSSL n
 - [Glosario](#Glosario)
   * [`Init`](#init)
   * [`Comprobante`](#comprobante)
-    * [`Comprobante`](#comprobante)
+    * [`Traslados`](#concepto.traslado)
+    * [`Retenciones`](#concepto.retencion)
+    * [`Agregar`](#concepto.agregar)
   * [`CFDI Relacionados`](#relacionados)
   * [`Emisor`](#emisor)
   * [`Receptor`](#receptor)
@@ -122,7 +124,7 @@ const concepto = cfdi.concepto({
 });
 ```
 
-Agregar traslado a concepto
+### `concepto.traslado`
 ```javascript
 concepto.traslado({
     Base: '369.83',
@@ -133,7 +135,7 @@ concepto.traslado({
 });
 ```
 
-Agregar retencion a concepto
+### `concepto.retencion`
 ```javascript
 concepto.retencion({
     Base: '369.83',
@@ -144,7 +146,7 @@ concepto.retencion({
 });
 ```
 
-Agregar concepto a cfdi
+### `concepto.agregar`
 ```javascript
 concepto.agregar(cfdi),
 ```
