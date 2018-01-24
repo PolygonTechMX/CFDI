@@ -1,9 +1,7 @@
-const fs = require('fs');
-const path = require('path');
 const CFDI = require('../src/CFDI');
 
-const key = path.join(__dirname, 'LAN7008173R5.key');
-const cer = path.join(__dirname, 'LAN7008173R5.cer');
+const key = './test/LAN7008173R5.key';
+const cer = './test/LAN7008173R5.cer';
 
 const cfdi = new CFDI({
     Serie: 'A',

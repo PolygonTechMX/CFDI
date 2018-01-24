@@ -28,7 +28,8 @@ Por el momento solo funciona para windows y no requiere instalacion de OpenSSL n
 - [Glosario](#Glosario)
   * [`Init`](#init)
   * [`Comprobante`](#comprobante)
-  * [`Relacionados`](#relacionados)
+    * [`Comprobante`](#comprobante)
+  * [`CFDI Relacionados`](#relacionados)
   * [`Emisor`](#emisor)
   * [`Receptor`](#receptor)
   * [`Concepto`](#concepto)
@@ -56,8 +57,9 @@ YARN:
 ### `init`
 ```javascript
 const CFDI = require('cfdi');
-const fs = require('fs');
-const path = require('path');
+
+const key = './LAN7008173R5.key';
+const cer = './LAN7008173R5.cer';
 const cfdi = new CFDI()
 ```
 

@@ -43,7 +43,7 @@ function pushConcepto(cfdi, c) {
   };
 
   if(c.Impuestos.Traslados.length > 0 || c.Impuestos.Retenciones.length > 0){
-    const index = 0;
+    let index = 0;
     // AGREGAR IMPUESTOS A CONCEPTO
     concepto.elements.push({
       type: 'element',
@@ -193,7 +193,7 @@ class CFDI {
   * @param {String[]} relacionados.CfdiRelacionados
   */
   CfdiRelacionados(relacionados){
-    _
+    return this;
   }
 
   /**
@@ -249,7 +249,7 @@ class CFDI {
       elements: []
     };
 
-    const index = 0;
+    let index = 0;
     // AGREGAR SI CONTIENE IMPUESTOS TRASLADADOS
     if(_.has(i, 'TotalImpuestosTrasladados')){
       impuestos.attributes['TotalImpuestosTrasladados'] = i.TotalImpuestosTrasladados;
