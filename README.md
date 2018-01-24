@@ -26,16 +26,16 @@ Por el momento solo funciona para windows y no requiere instalacion de OpenSSL n
 <!-- toc -->
 - [Instalación](#Instalación)
 - [Glosario](#Glosario)
-  * [`Init`](#Init)
-  * [`Comprobante`](#Comprobante)
-  * [`Relacionados`](#Relacionados)
-  * [`Emisor`](#Emisor)
-  * [`Receptor`](#Receptor)
-  * [`Concepto`](#Concepto)
-  * [`Impuestos`](#Impuestos)
-  * [`Certificar`](#Certificar)
-  * [`Generar XML`](#Generar XML)
-  * [`Generar XML Sellado`](#Generar XML Sellado)
+  * [`Init`](#init)
+  * [`Comprobante`](#comprobante)
+  * [`Relacionados`](#relacionados)
+  * [`Emisor`](#emisor)
+  * [`Receptor`](#receptor)
+  * [`Concepto`](#concepto)
+  * [`Impuestos`](#impuestos)
+  * [`Certificar`](#certificar)
+  * [`Generar XML`](#xml)
+  * [`Generar XML Sellado`](#xmlSellado)
 - [Ejemplos]()
   * [`Ejemplo básico`](#Ejemplo básico)
   * [`Ejemplo simplificado`](#Ejemplo simplificado)
@@ -53,7 +53,7 @@ YARN:
 
 ## Glosario
 
-### Init
+### `init`
 ```javascript
 const CFDI = require('cfdi');
 const fs = require('fs');
@@ -61,7 +61,7 @@ const path = require('path');
 const cfdi = new CFDI()
 ```
 
-### Comprobante
+### `comprobante`
 ```javascript
 cfdi.comprobante({
     Serie: 'A',
@@ -80,7 +80,7 @@ cfdi.comprobante({
 });
 ```
 
-### Relacionados
+### `relacionados`
 ```javascript
 cfdi.CfdiRelacionados({
     TipoRelacion: '',
@@ -88,7 +88,7 @@ cfdi.CfdiRelacionados({
 });
 ```
 
-### Emisor
+### `emisor`
 ```javascript
 cfdi.emisor({
     Rfc: 'SAT',
@@ -97,7 +97,7 @@ cfdi.emisor({
 });
 ```
 
-### Receptor
+### `receptor`
 ```javascript
 cfdi.receptor({
     Rfc: 'MALD930428US2',
@@ -106,7 +106,7 @@ cfdi.receptor({
 });
 ```
 
-### Concepto
+### `concepto`
 ```javascript
 const concepto = cfdi.concepto({
     ClaveProdServ: '52121500',
@@ -147,7 +147,7 @@ Agregar concepto a cfdi
 concepto.agregar(cfdi),
 ```
 
-### Impuestos
+### `impuestos`
 ```javascript
 cfdi.impuestos({
     TotalImpuestosTrasladados: '59.17',
@@ -162,13 +162,13 @@ cfdi.impuestos({
 });
 ```
 
-### Certificar
+### `certificar`
 ```javascript
 const cer = path.join(__dirname, 'LAN7008173R5.cer');
 cfdi.certificar(cer);
 ```
 
-### Generar XML
+### xml
 ```javascript
 cfdi
 .xml()
@@ -176,7 +176,7 @@ cfdi
 .catch(err => console.log(err));
 ```
 
-### Generar XML Sellado
+### `xmlSellado`
 ```javascript
 const key = path.join(__dirname, 'LAN7008173R5.key');
 cfdi.xmlSellado(key, '12345678a')
