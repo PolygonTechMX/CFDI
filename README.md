@@ -25,7 +25,7 @@ Por el momento solo funciona para windows y no requiere instalacion de OpenSSL n
 
 <!-- toc -->
 - [Instalación](#Instalación)
-- [Glosario](#Glosario)
+- [Metodos](#Glosario)
   * [`Init`](#init)
   * [`Comprobante`](#comprobante)
     * [`Traslados`](#concepto.traslado)
@@ -42,6 +42,7 @@ Por el momento solo funciona para windows y no requiere instalacion de OpenSSL n
 - [Ejemplos]()
   * [`Ejemplo básico`](#Ejemplo básico)
   * [`Ejemplo simplificado`](#Ejemplo simplificado)
+  * [`Utilidades`](#Utilidades)
 <!-- tocstop -->
 
 ## Instalación
@@ -188,7 +189,7 @@ cfdi.xmlSellado(key, '12345678a')
 .catch(err => console.log(err));
 ```
 
-## Ejemplo básico
+### `Ejemplo básico`
 ```javascript
 const fs = require('fs');
 const CFDI = require('../src/CFDI');
@@ -264,7 +265,7 @@ cfdi.xmlSellado(key, '12345678a')
 .catch(err => console.log(err));
 ```
 
-## Ejemplo simplificado
+### `Ejemplo simplificado`
 ```javascript
 const fs = require('fs');
 const CFDI = require('../src/CFDI');
