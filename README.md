@@ -40,9 +40,9 @@ Por el momento solo funciona para windows y no requiere instalacion de OpenSSL n
   * [`Generar XML`](#xml)
   * [`Generar XML Sellado`](#xmlSellado)
 - [Ejemplos]()
-  * [`Ejemplo básico`](#Ejemplo básico)
-  * [`Ejemplo simplificado`](#Ejemplo simplificado)
-  * [`Utilidades`](#Utilidades)
+  * [`Ejemplo básico`](#basico)
+  * [`Ejemplo simplificado`](#simplificado)
+- [Utilidades](#Utilidades)
 <!-- tocstop -->
 
 ## Instalación
@@ -189,7 +189,7 @@ cfdi.xmlSellado(key, '12345678a')
 .catch(err => console.log(err));
 ```
 
-### `Ejemplo básico`
+### `basico`
 ```javascript
 const fs = require('fs');
 const CFDI = require('../src/CFDI');
@@ -265,7 +265,7 @@ cfdi.xmlSellado(key, '12345678a')
 .catch(err => console.log(err));
 ```
 
-### `Ejemplo simplificado`
+### `simplificado`
 ```javascript
 const fs = require('fs');
 const CFDI = require('../src/CFDI');
