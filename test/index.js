@@ -1,3 +1,4 @@
+const fs = require('fs');
 const CFDI = require('../src/CFDI');
 
 const key = './test/LAN7008173R5.key';
@@ -18,7 +19,7 @@ const cfdi = new CFDI({
     TipoCambio: '1',
     LugarExpedicion: '45079'
 }).CfdiRelacionados({
-    TipoRelacion: '',
+    TipoRelacion: '01',
     CfdiRelacionados: ['UUID_____________1', 'UUID_____________2', 'UUID_____________3']
 }).emisor({
     Rfc: 'SAT',
@@ -57,9 +58,29 @@ cfdi.concepto({
     Importe: '59.17'
 }).agregar(cfdi);
 
+cfdi.concepto({
+    ClaveProdServ: '52121500',
+    ClaveUnidad: 'E48',
+    NoIdentificacion: '3031130179',
+    Cantidad: '1',
+    Unidad: 'PZ',
+    Descripcion: 'BATITA UNICORNIO',
+    ValorUnitario: '369.83',
+    Importe: '369.83'
+}).traslado({
+    Base: '369.83',
+    Impuesto: '002',
+    TipoFactor: 'Tasa',
+    TasaOCuota: '0.16',
+    Importe: '59.17'
+}).agregar(cfdi);
+
+
 
 cfdi
 .certificar(cer)
 .xmlSellado(key, '12345678a')
-.then(xml => console.log(xml))
+.then(xml => fs.writeFileSync('./test/test.xml', xml))
 .catch(err => console.log(err));
+
+fs.writeFileSync('./test/test.json', JSON.stringify(cfdi.jxml))

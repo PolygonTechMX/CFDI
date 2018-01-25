@@ -42,7 +42,6 @@ Por el momento solo funciona para windows y no requiere instalacion de OpenSSL n
 - [Ejemplos]()
   * [`Ejemplo básico`](#basico)
   * [`Ejemplo simplificado`](#simplificado)
-- [Utilidades](#Utilidades)
 <!-- tocstop -->
 
 ## Instalación

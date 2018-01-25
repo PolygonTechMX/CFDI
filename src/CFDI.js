@@ -22,16 +22,19 @@ if(/^win/.test(process.platform)){
 }
 
 function pushConcepto(cfdi, c) {
+  const len = cfdi.elements[0].elements.length;
+  const inconce = _.findIndex(cfdi.elements[0].elements, { name: 'cfdi:Conceptos' });
   // AGREGAR BASE DE CONCEPTOS
-  if(cfdi.elements[0].elements.length === 2){
+  if(inconce === -1){
     cfdi.elements[0].elements.push({
+      order: 3,
       type: 'element',
       name: 'cfdi:Conceptos',
       elements: []
     });
   }
   // RUTA BASE DE CONCEPTOS
-  const base = cfdi.elements[0].elements[2].elements;
+  const base = (inconce === -1)? cfdi.elements[0].elements[len].elements: cfdi.elements[0].elements[inconce].elements;
   // AGREGAR CONCEPTO A CONCEPTOS
   const attrConcepto = JSON.parse(JSON.stringify(c));
   delete attrConcepto.Impuestos;
@@ -193,6 +196,23 @@ class CFDI {
   * @param {String[]} relacionados.CfdiRelacionados
   */
   CfdiRelacionados(relacionados){
+    const r =  {
+      order: 0,
+      type: 'element',
+      name: 'cfdi:Receptor',
+      attributes: { TipoRelacion: receptor.TipoRelacion },
+      elements: []
+    };
+
+    (receptor.CfdiRelacionados).forEach(rel => {
+      r.elements.push({
+        type: 'element',
+        name: 'cfdi:CfdiRelacionado',
+        attributes: { UUID: rel }
+      });
+    });
+
+    this.jxml.elements[0].elements.push(impuestos);
     return this;
   }
 
@@ -204,6 +224,7 @@ class CFDI {
   */
   emisor(emisor) {
     this.jxml.elements[0].elements.push({
+      order: 1,
       type: 'element',
       name: 'cfdi:Emisor',
       attributes: emisor
@@ -219,6 +240,7 @@ class CFDI {
   */
   receptor(receptor) {
     this.jxml.elements[0].elements.push({
+      order: 2,
       type: 'element',
       name: 'cfdi:Receptor',
       attributes: receptor
@@ -243,6 +265,7 @@ class CFDI {
   impuestos(i) {
     // CREANDO BASE DE IMPUESTOS GLOBALES
     const impuestos = {
+      order: 4,
       type: 'element',
       name: 'cfdi:Impuestos',
       attributes: { },
@@ -354,6 +377,7 @@ class CFDI {
   xml() {
     return new Promise((resolve, reject) => {
       try {
+        this.jxml.elements[0].elements =  _.orderBy(this.jxml.elements[0].elements, ['order']);
         const xml = convert.json2xml(this.jxml);
         resolve(xml);
       }catch(err) {
@@ -370,6 +394,7 @@ class CFDI {
   xmlSellado(llave, password) {
     FileSystem.manageDirectoryTemp('create');
     const fullPath = `./tmp/${FileSystem.generateNameTemp()}.xml`;
+    this.jxml.elements[0].elements =  _.orderBy(this.jxml.elements[0].elements, ['order']);
     fs.writeFileSync(fullPath, convert.json2xml(this.jxml), 'utf8');
     const stylesheet = path.join(__dirname, 'resources', 'cadenaoriginal_3_3.xslt');
     return xsltproc({ xsltproc_path: libxmlPath })
