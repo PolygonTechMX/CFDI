@@ -15,7 +15,7 @@
 [license-url]: LICENSE
 [npm-url]: https://npmjs.org/package/cfdi
 [npm-version-image]: http://img.shields.io/npm/v/cfdi.svg?style=flat
-[npm-downloads-image]: http://img.shields.io/npm/dt/cfdi..svg?style=flat
+[npm-downloads-image]: http://img.shields.io/npm/dt/cfdi.svg?style=flat
 [dev-image]: https://img.shields.io/david/mgcrea/node-openssl-wrapper.svg?style=flat
 [dev-url]: https://david-dm.org/mgcrea/node-openssl-wrapper
 
