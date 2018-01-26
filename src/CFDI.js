@@ -200,11 +200,11 @@ class CFDI {
       order: 0,
       type: 'element',
       name: 'cfdi:Receptor',
-      attributes: { TipoRelacion: receptor.TipoRelacion },
+      attributes: { TipoRelacion: relacionados.TipoRelacion },
       elements: []
     };
 
-    (receptor.CfdiRelacionados).forEach(rel => {
+    (relacionados.CfdiRelacionados).forEach(rel => {
       r.elements.push({
         type: 'element',
         name: 'cfdi:CfdiRelacionado',

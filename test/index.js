@@ -39,6 +39,9 @@ const cfdi = new CFDI({
         Importe: '59.17'
       }
     ]
+}).CfdiRelacionados({
+    TipoRelacion: '03',
+    CfdiRelacionados: ['asdasd-asdasd-asdasdasd-asdasd']
 });
 
 cfdi.concepto({
