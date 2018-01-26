@@ -212,7 +212,7 @@ class CFDI {
       });
     });
 
-    this.jxml.elements[0].elements.push(impuestos);
+    this.jxml.elements[0].elements.push(r);
     return this;
   }
 
