@@ -199,7 +199,7 @@ class CFDI {
     const r =  {
       order: 0,
       type: 'element',
-      name: 'cfdi:Receptor',
+      name: 'cfdi:CfdiRelacionados',
       attributes: { TipoRelacion: relacionados.TipoRelacion },
       elements: []
     };
