@@ -414,7 +414,7 @@ class CFDI {
         const xml = convert.json2xml(this.jxml);
         return xml;
       }else{
-        reject('Error al combertir certificado');
+        throw new Error('Error al combertir certificado');
       }
     });
   }
