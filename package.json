@@ -1,6 +1,6 @@
 {
   "name": "cfdi",
-  "version": "3.3.14",
+  "version": "3.3.15",
   "license": "MIT",
   "main": "./src/CFDI.js",
   "description": "Libreria para crear y sellar xml cfdi V3.3",
@@ -20,7 +20,9 @@
     "url": "https://github.com/PolygonTechMX/CFDI"
   },
   "system": {
-    "os": ["!win32"]
+    "os": [
+      "!win32"
+    ]
   },
   "dependencies": {
     "crypto": "^1.0.1",

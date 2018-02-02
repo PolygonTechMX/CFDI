@@ -1,8 +1,8 @@
 const fs = require('fs');
 const CFDI = require('../src/CFDI');
 
-const key = './test/LAN7008173R5.key';
-const cer = './test/LAN7008173R5.cer';
+const key = 'C:\\Users\\David Martinez\\AppData\\Roaming\\ibelectron\\LAN7008173R5.key';
+const cer = 'C:\\Users\\David Martinez\\AppData\\Roaming\\ibelectron\\LAN7008173R5.cer';
 
 const cfdi = new CFDI({
     Serie: 'A',
