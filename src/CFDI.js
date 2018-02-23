@@ -1,5 +1,6 @@
 'use strict';
 
+const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -12,14 +13,6 @@ const pki = forge.pki;
 
 const baseCFDI = require('./utils/base');
 const FileSystem = require('./utils/FileSystem');
-
-let opensslPath = '';
-let libxmlPath = '';
-
-if(/^win/.test(process.platform)){
-  libxmlPath = path.join(path.resolve(__dirname, '../'), 'lib', 'win','libxml', 'bin');
-  opensslPath = path.join(path.resolve(__dirname, '../'), 'lib', 'win', 'openssl', 'bin');
-}
 
 function pushConcepto(cfdi, c) {
   const len = cfdi.elements[0].elements.length;
@@ -124,12 +117,14 @@ class concept {
   * @param {String} concepto.Impuestos.Retenciones.TasaOCuota
   * @param {String} concepto.Impuestos.Retenciones.Importe
   */
-  constructor(concepto){  
+  constructor(concepto){ 
     this.concepto = concepto;
     this.concepto.Impuestos = {
       Traslados: [],
       Retenciones: []
     }
+
+    //console.log(this.opensslDir);
   }
 
   /**
@@ -165,6 +160,8 @@ class concept {
 
 class CFDI {
   /**
+  * @param {String} opensslDir
+  * @param {String} libxmlDir
   * @param {Object} comprobante
   * @param {String} comprobante.Serie
   * @param {String} comprobante.Folio
@@ -179,15 +176,17 @@ class CFDI {
   * @param {String} comprobante.Descuento
   * @param {String} comprobante.TipoCambio
   * @param {String} comprobante.LugarExpedicion
-  * @param {String} comprobante.Confirmacion
+  * @param {String} comprobante.Confirmacion,
   */
-  constructor(comprobante) {
+  constructor(comprobante, opensslDir, libxmlDir) {
     this.jxml = new baseCFDI();
     this.jxml.elements[0].attributes = comprobante;
     this.jxml.elements[0].attributes['xmlns:xsi'] = 'http://www.w3.org/2001/XMLSchema-instance';
     this.jxml.elements[0].attributes['xsi:schemaLocation'] = 'http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd';
     this.jxml.elements[0].attributes['xmlns:cfdi'] = 'http://www.sat.gob.mx/cfd/3';
     this.jxml.elements[0].attributes['Version'] = '3.3';
+    this.opensslDir = opensslDir || path.join(path.resolve(__dirname, '../'), 'lib', 'win', 'openssl');
+    this.libxmlDir = libxmlDir ||  path.join(path.resolve(__dirname, '../'), 'lib', 'win','libxml');
   }
 
   /**
@@ -392,17 +391,19 @@ class CFDI {
   * @returns {Promise}
   */
   xmlSellado(llave, password) {
-    FileSystem.manageDirectoryTemp('create');
-    const fullPath = `./tmp/${FileSystem.generateNameTemp()}.xml`;
+    if(!fs.existsSync(this.libxmlDir)) return Promise.reject("No se encontro libxml en la ruta: "+ this.libxmlDir);
+    if(!fs.existsSync(this.opensslDir)) return Promise.reject("No se encontro openss en la ruta: "+ this.opensslDir);
+
+    const fullPath = path.join(os.tmpdir(), `${FileSystem.generateNameTemp()}.xml`);
     this.jxml.elements[0].elements =  _.orderBy(this.jxml.elements[0].elements, ['order']);
     fs.writeFileSync(fullPath, convert.json2xml(this.jxml), 'utf8');
     const stylesheet = path.join(__dirname, 'resources', 'cadenaoriginal_3_3.xslt');
-    return xsltproc({ xsltproc_path: libxmlPath })
+    return xsltproc({ xsltproc_path: this.libxmlDir })
     .transform([stylesheet, fullPath])
     .then(cadena => {
-      FileSystem.manageDirectoryTemp('delete');
+      fs.unlinkSync(fullPath);
       const pem = openssl.decryptPKCS8PrivateKey({
-        openssl_path: opensslPath,
+        openssl_path: this.opensslDir,
         in: llave,
         pass: password
       });
@@ -414,7 +415,7 @@ class CFDI {
         const xml = convert.json2xml(this.jxml);
         return xml;
       }else{
-        throw new Error('Error al combertir certificado');
+        throw new Error('Error al convertir certificado');
       }
     });
   }

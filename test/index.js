@@ -1,8 +1,8 @@
 const fs = require('fs');
 const CFDI = require('../src/CFDI');
 
-const key = 'C:\\Users\\David Martinez\\AppData\\Roaming\\ibelectron\\LAN7008173R5.key';
-const cer = 'C:\\Users\\David Martinez\\AppData\\Roaming\\ibelectron\\LAN7008173R5.cer';
+const key = './test/LAN7008173R5.key';
+const cer = './test/LAN7008173R5.cer';
 
 const cfdi = new CFDI({
     Serie: 'A',
@@ -83,7 +83,5 @@ cfdi.concepto({
 cfdi
 .certificar(cer)
 .xmlSellado(key, '12345678a')
-.then(xml => fs.writeFileSync('./test/test.xml', xml))
+.then(xml => fs.writeFileSync('./test/testSellado.xml', xml))
 .catch(err => console.log(err));
-
-fs.writeFileSync('./test/test.json', JSON.stringify(cfdi.jxml))
