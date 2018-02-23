@@ -162,6 +162,7 @@ class CFDI {
   /**
   * @param {String} opensslDir
   * @param {String} libxmlDir
+  * @param {String} stylesheetDir
   * @param {Object} comprobante
   * @param {String} comprobante.Serie
   * @param {String} comprobante.Folio
@@ -178,7 +179,7 @@ class CFDI {
   * @param {String} comprobante.LugarExpedicion
   * @param {String} comprobante.Confirmacion,
   */
-  constructor(comprobante, opensslDir, libxmlDir) {
+  constructor(comprobante, opensslDir, libxmlDir, stylesheetDir) {
     this.jxml = new baseCFDI();
     this.jxml.elements[0].attributes = comprobante;
     this.jxml.elements[0].attributes['xmlns:xsi'] = 'http://www.w3.org/2001/XMLSchema-instance';
@@ -187,6 +188,7 @@ class CFDI {
     this.jxml.elements[0].attributes['Version'] = '3.3';
     this.opensslDir = opensslDir || path.join(path.resolve(__dirname, '../'), 'lib', 'win', 'openssl');
     this.libxmlDir = libxmlDir ||  path.join(path.resolve(__dirname, '../'), 'lib', 'win','libxml');
+    this.stylesheetDir = stylesheetDir ||  path.join(__dirname, 'resources', 'cadenaoriginal_3_3.xslt');
   }
 
   /**
@@ -397,9 +399,8 @@ class CFDI {
     const fullPath = path.join(os.tmpdir(), `${FileSystem.generateNameTemp()}.xml`);
     this.jxml.elements[0].elements =  _.orderBy(this.jxml.elements[0].elements, ['order']);
     fs.writeFileSync(fullPath, convert.json2xml(this.jxml), 'utf8');
-    const stylesheet = path.join(__dirname, 'resources', 'cadenaoriginal_3_3.xslt');
     return xsltproc({ xsltproc_path: this.libxmlDir })
-    .transform([stylesheet, fullPath])
+    .transform([this.stylesheetDir, fullPath])
     .then(cadena => {
       fs.unlinkSync(fullPath);
       const pem = openssl.decryptPKCS8PrivateKey({

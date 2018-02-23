@@ -1,6 +1,6 @@
 {
   "name": "cfdi",
-  "version": "3.3.19",
+  "version": "3.3.21",
   "license": "MIT",
   "main": "./src/CFDI.js",
   "description": "Libreria para crear y sellar xml cfdi V3.3",
