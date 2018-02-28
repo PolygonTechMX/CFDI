@@ -403,21 +403,24 @@ class CFDI {
     .transform([this.stylesheetDir, fullPath])
     .then(cadena => {
       fs.unlinkSync(fullPath);
-      const pem = openssl.decryptPKCS8PrivateKey({
-        openssl_path: this.opensslDir,
-        in: llave,
-        pass: password
-      });
-      if(pem != false){
-        const sign = crypto.createSign('RSA-SHA256');
-        sign.update(cadena.result);
-        const sello = sign.sign(pem.trim(), 'base64');
-        this.jxml.elements[0].attributes['Sello'] = sello;
-        const xml = convert.json2xml(this.jxml);
-        return xml;
-      }else{
-        throw new Error('Error al convertir certificado');
-      }
+
+      return Promise.all([
+        cadena,
+        openssl.decryptPKCS8PrivateKey({
+          openssl_path: this.opensslDir,
+          in: llave,
+          pass: password
+        })
+      ]);
+    })
+    .then((prm) => {
+      const pem = prm[1];
+      const cadena = prm[0];
+      const sign = crypto.createSign('RSA-SHA256');
+      sign.update(cadena.result);
+      const sello = sign.sign(pem.trim(), 'base64');
+      this.jxml.elements[0].attributes['Sello'] = sello;
+      return convert.json2xml(this.jxml);
     });
   }
 }
