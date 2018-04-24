@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "crypto": "^1.0.1",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.9",
     "node-forge": "^0.7.2",
     "node-xsltproc": "^1.1.1",
     "xml-js": "^1.6.2"
