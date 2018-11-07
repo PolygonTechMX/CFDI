@@ -3,6 +3,7 @@ logs
 *.log
 npm-debug.log*
 package-lock.json
+.vscode
 
 # Runtime data
 pids
@@ -22,7 +23,7 @@ coverage
 .lock-wscript
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
+build
 
 # Test files
 **/test.xml

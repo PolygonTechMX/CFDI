@@ -1,5 +1,5 @@
 const fs = require('fs');
-const CFDI = require('../src/CFDI');
+const CFDI = require('../dist/CFDI');
 
 const key = './test/LAN7008173R5.key';
 const cer = './test/LAN7008173R5.cer';
@@ -78,10 +78,10 @@ cfdi.concepto({
     Importe: '59.17'
 }).agregar(cfdi);
 
-
-
 cfdi
 .certificar(cer)
 .xmlSellado(key, '12345678a')
-.then(xml => fs.writeFileSync('./test/testSellado.xml', xml))
+.then(xml => {
+    return fs.writeFileSync('./test/testSellado.xml', xml);
+})
 .catch(err => console.log(err));

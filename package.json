@@ -2,8 +2,10 @@
   "name": "cfdi",
   "version": "3.3.26",
   "license": "MIT",
-  "main": "./src/CFDI.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "description": "Libreria para crear y sellar xml cfdi V3.3",
+  "gypfile": true,
   "keywords": [
     "cfdi",
     "sat",
@@ -19,16 +21,24 @@
     "type": "git",
     "url": "https://github.com/PolygonTechMX/CFDI"
   },
-  "system": {
-    "os": [
-      "!win32"
-    ]
+  "scripts": {
+    "build": "rmdir /S /Q dist && node-gyp configure build && tsc && rmdir /S /Q build",
+    "install": "node-gyp configure rebuild",
+    "test": "node ./test/index.js",
+    "test-native": "node ./test/native_utils.js"
   },
   "dependencies": {
-    "crypto": "^1.0.1",
-    "lodash": "^4.17.4",
-    "node-forge": "^0.7.2",
+    "lodash": "^4.17.x",
+    "nan": "^2.11.x",
+    "napi-crypto": "^1.2.0",
+    "node-addon-api": "*",
+    "node-gyp": "^3.8.0",
     "node-xsltproc": "^1.1.1",
-    "xml-js": "^1.6.2"
+    "xml-js": "1.6.x"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.118",
+    "@types/node": "^10.12.3",
+    "typescript": "^3.1.6"
   }
 }
