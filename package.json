@@ -29,6 +29,12 @@
     "lodash": "^4.17.9",
     "node-forge": "^0.7.2",
     "node-xsltproc": "^1.1.1",
-    "xml-js": "^1.6.3"
-  }
+    "xml-js": "^1.6.3",
+    "snyk": "^1.189.0"
+  },
+  "scripts": {
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
+  "snyk": true
 }
