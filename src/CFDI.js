@@ -274,6 +274,30 @@ class CFDI {
     };
 
     let index = 0;
+	
+    // AGREGAR SI CONTIENE IMPUESTOS RETENIDOS
+    if(_.has(i, 'TotalImpuestosRetenidos')){
+      impuestos.attributes['TotalImpuestosRetenidos'] = i.TotalImpuestosRetenidos;
+
+      // AGREGAR RETENCIONES A IMPUESTOS
+      impuestos.elements.push({
+        type: 'element',
+        name: 'cfdi:Retenciones',
+        elements: []
+      });
+
+      // RECORRER RETENCION
+      i.Retenciones.forEach(retencion => {
+        // AGREGAR RETENCION A RETENCION
+        impuestos.elements[index].elements.push({
+          type: 'element',
+          name: 'cfdi:Retencion',
+          attributes: retencion
+        });
+      });
+	  index++;
+    }
+	
     // AGREGAR SI CONTIENE IMPUESTOS TRASLADADOS
     if(_.has(i, 'TotalImpuestosTrasladados')){
       impuestos.attributes['TotalImpuestosTrasladados'] = i.TotalImpuestosTrasladados;
@@ -297,27 +321,6 @@ class CFDI {
       index++;
     }
 
-    // AGREGAR SI CONTIENE IMPUESTOS RETENIDOS
-    if(_.has(i, 'TotalImpuestosRetenidos')){
-      impuestos.attributes['TotalImpuestosRetenidos'] = i.TotalImpuestosRetenidos;
-
-      // AGREGAR RETENCIONES A IMPUESTOS
-      impuestos.elements.push({
-        type: 'element',
-        name: 'cfdi:Retenciones',
-        elements: []
-      });
-
-      // RECORRER TRASLADOS
-      i.Retenciones.forEach(retencion => {
-        // AGREGAR TRASLADO A TRASLADOS
-        impuestos.elements[index].elements.push({
-          type: 'element',
-          name: 'cfdi:Retencion',
-          attributes: retencion
-        });
-      });
-    }
 
     // AGREGAR IMPUESTOS A COMPROBANTE
     this.jxml.elements[0].elements.push(impuestos);
