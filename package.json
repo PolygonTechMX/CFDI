@@ -30,7 +30,7 @@
     "node-forge": "^0.9.0",
     "node-xsltproc": "^1.1.1",
     "xml-js": "^1.6.3",
-    "snyk": "^1.330.1"
+    "snyk": "^1.332.0"
   },
   "scripts": {
     "snyk-protect": "snyk protect",
