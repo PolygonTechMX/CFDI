@@ -28,7 +28,7 @@
     "crypto": "^1.0.1",
     "lodash": "^4.17.9",
     "node-forge": "^1.3.0",
-    "node-xsltproc": "^1.1.1",
+    "node-xsltproc": "^1.2.1",
     "xml-js": "^1.6.3",
     "snyk": "^1.330.1"
   },
